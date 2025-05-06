@@ -9,3 +9,4 @@ class TokenType(Enum):
     KEYWORD = auto()
     MEM = auto()
     RES = auto()
+    ERROR = auto()

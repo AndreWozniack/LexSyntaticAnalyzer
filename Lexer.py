@@ -64,11 +64,10 @@ class Lexer:
         value = self.line[start:self.index].upper()
         if value in self.keywords:
             token_type = TokenType.KEYWORD
+            self.tokens.append(Token(value, token_type, self.line_number, start))
         else:
-            raise Exception(f"Unrecognized keyword: {value} at index {self.index} in line {self.line_number}")
-
-        self.tokens.append(Token(value, token_type, self.line_number, start))
-
+            print(f"[Line {self.line_number}] ❌ Error: Unrecognized keyword '{value}' at column {start}")
+            self.tokens.append(Token(value, TokenType.ERROR, self.line_number, start))
 
     def tokenize(self):
         while self.index < len(self.line):
@@ -89,14 +88,24 @@ class Lexer:
                 self.advance()
 
             elif char == '(':
-                self.tokens.append(Token(self.current_char(), TokenType.LEFT_PARENTHESIS, self.line_number, self.index))
+                self.tokens.append(Token(char, TokenType.LEFT_PARENTHESIS, self.line_number, self.index))
                 self.advance()
 
             elif char == ')':
-                self.tokens.append(Token(self.current_char(), TokenType.RIGHT_PARENTHESIS, self.line_number, self.index))
+                self.tokens.append(Token(char, TokenType.RIGHT_PARENTHESIS, self.line_number, self.index))
                 self.advance()
 
-            if char.isalpha():
+            elif char.isalpha():
                 self.keyword()
+
+            else:
+                self.tokens.append(Token(
+                    value=char,
+                    token_class=TokenType.ERROR,
+                    row=self.line_number,
+                    column=self.index
+                ))
+                print(f"[Line {self.line_number}] ❌ Error: Unrecognized character '{char}' at column {self.index}")
+                self.advance()
 
         return self.tokens
