@@ -1,4 +1,4 @@
-# Analisador Léxico -  
+# Analisador Léxico  
 Linguagens Formais e Compiladores
 
 Este projeto é um **analisador léxico** implementado em Python, baseado em uma **Máquina de Estados Finitos Determinística (MEFD)**. Ele processa linhas de código e converte lexemas em tokens válidos da linguagem definida.
