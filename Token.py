@@ -21,6 +21,3 @@ class Token:
             "row": self.row,
             "column": self.column
         }
-
-
-
