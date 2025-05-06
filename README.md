@@ -5,7 +5,7 @@ Este projeto é um **analisador léxico** implementado em Python, baseado em uma
 
 <img src="./mefd.png" alt="Diagrama MEFD" width="800"/>  
 
-*MEFD elaborada para fazer a análise léxica dos lexemas da linguagem*  
+*MEFD elaborada para encontrar os lexemas da linguagem*  
 Utilizado o software [JFALP](https://www.jflap.org/) para desenvolver essa visualização
 
 ---
