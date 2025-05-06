@@ -3,7 +3,7 @@ Linguagens Formais e Compiladores
 
 Este projeto é um **analisador léxico** implementado em Python, baseado em uma **Máquina de Estados Finitos Determinística (MEFD)**. Ele processa linhas de código e converte lexemas em tokens válidos da linguagem definida.
 
-<img src="./mefd.png" alt="Diagrama MEFD" width="400"/>  
+<img src="./mefd.png" alt="Diagrama MEFD" width="800"/>  
 
 *MEFD elaborada para fazer a análise léxica dos lexemas da linguagem*  
 Utilizado o software [JFALP](https://www.jflap.org/) para desenvolver essa visualização
