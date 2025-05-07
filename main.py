@@ -1,12 +1,43 @@
 import argparse
 import json
 from Token import Token
-from Lexer import Lexer
+from Lexer import Lexer, LexicalError
+
 
 def token_to_dict(token: Token) -> dict:
     return token.tokenToDict()
 
-def tokenizeFileAndSaveJSON(input_path: str, output_path: str) -> list[Token]:
+def print_tokens(tokens: list[Token], line_counter: int, line, error=None):
+    line_separator = "-=" * 25
+    formatted_line = line.rstrip("\n")
+
+    # cabeçalho
+    print(f"\n{line_separator}")
+    print(f" Line {line_counter:3d} - {formatted_line}")
+    print(f"{line_separator}")
+
+    # lista de tokens
+    if tokens:
+        for token in tokens:
+            print(f"{token.token_class.name:<20} | {token.value:<5} | {token.row}:{token.column:<5}")
+    else:
+        print("No valid tokens found.")
+
+    if error:
+        exc, pos = error
+        msg = str(exc)
+        print(f"\nError: {msg} {line_counter}:{pos}")
+        print(f"{formatted_line}")
+        print(" " * pos + "^-- Error here")
+
+    print(f"{line_separator}\n")
+
+def tokenize_file(
+        input_path: str,
+        save_json: bool = False,
+        output_path: str = "tokens_output.json",
+        raw: bool = False
+) -> list[Token]:
     token_list = []
     output_data = []
     line_counter = 0
@@ -31,54 +62,77 @@ def tokenizeFileAndSaveJSON(input_path: str, output_path: str) -> list[Token]:
         if stripped.startswith("#") or stripped.startswith("//"):
             continue
 
+        tokenizer = Lexer(stripped, line_counter)
+
         try:
-            tokenizer = Lexer(stripped, line_counter)
             tokens = tokenizer.tokenize()
-            token_list.extend(tokens)
-            print(f"[Line {line_counter}] Tokens: {tokens}")
-            output_data.append({
-                "line": line_counter,
-                "tokens": [token_to_dict(tok) for tok in tokens]
-            })
+            error = None
 
+        except LexicalError as e:
+            tokens = tokenizer.tokens
+            error = (e, e.position)
         except Exception as e:
-            output_data.append({
-                "line": line_counter,
-                "error": str(e)
-            })
+            tokens = tokenizer.tokens
+            error = (e, tokenizer.index)
 
+        if raw:
+            for tok in tokens:
+                print(tok)
+            print()
+        else:
+            # imprime no formato tabulado + erro formatado
+            print_tokens(tokens, line_counter, line, error=error)
+
+        entry = {"line": line_counter}
+        if tokens:
+            entry["tokens"] = [token_to_dict(tok) for tok in tokens]
+        if error:
+            entry["error"] = str(error[0])
+            entry["error_position"] = error[1]
+        output_data.append(entry)
+
+        token_list.extend(tokens)
         line_counter += 1
 
-    with open(output_path, "w", encoding="utf-8") as out_file:
-        json.dump(output_data, out_file, indent=4)
+    if save_json:
+        with open(output_path, "w", encoding="utf-8") as out_file:
+            json.dump(output_data, out_file, indent=4)
+        print(f"\n✅ Tokens salvos em {output_path}")
 
-    print(f"\n✅ Tokens salvos em {output_path}")
     return token_list
 
 def main():
     parser = argparse.ArgumentParser(description="Lexer Tokenizer")
-    parser.add_argument("--file", required=True, help="Arquivo de entrada com código-fonte")
-    parser.add_argument("--save-json", action="store_true", help="Salvar tokens em formato JSON")
-    parser.add_argument("--output", default="tokens_output.json", help="Caminho do arquivo de saída JSON (opcional)")
+    parser.add_argument(
+        "--file",
+        required=True,
+        help="Arquivo de entrada com código-fonte"
+    )
+    parser.add_argument(
+        "-s", "--save",
+        dest="save_json",
+        action="store_true",
+        help="Salvar tokens em formato JSON"
+    )
+    parser.add_argument(
+        "--output",
+        default="tokens_output.json",
+        help="Caminho do arquivo de saída JSON (opcional)"
+    )
+    parser.add_argument(
+        "-r", "--raw",
+        action="store_true",
+        help="Imprime apenas os tokens, um por linha, e pula linha após cada input"
+    )
+
     args = parser.parse_args()
 
-    if args.save_json:
-        tokenizeFileAndSaveJSON(args.file, args.output)
-    else:
-        print("Starting...\n")
-        line_number = 0
-        with open(args.file, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if not line or line.startswith(("#", "//")):
-                    continue
-                try:
-                    tokenizer = Lexer(line, line_number)
-                    tokens = tokenizer.tokenize()
-                    print(f"[Line {line_number}] Tokens: {tokens}")
-                except Exception as e:
-                    print(f"[Line {line_number}] ❌ Error: {e}")
-                line_number += 1
+    tokenize_file(
+        args.file,
+        args.save_json,
+        args.output,
+        raw=args.raw
+    )
 
 if __name__ == '__main__':
     main()
