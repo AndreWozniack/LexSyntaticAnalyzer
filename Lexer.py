@@ -1,6 +1,11 @@
 from TokenType import *
 from Token import *
 
+class LexicalError(Exception):
+    def __init__(self, message: str, position: int):
+        super().__init__(message)
+        self.position = position
+
 class Lexer:
     def __init__(self, line: str, line_number: int):
         self.line = line
@@ -16,7 +21,6 @@ class Lexer:
             "ELSE",
             "FOR"
         )
-
 
     def current_char(self):
         return self.line[self.index] if self.index < len(self.line) else None
@@ -66,8 +70,8 @@ class Lexer:
             token_type = TokenType.KEYWORD
             self.tokens.append(Token(value, token_type, self.line_number, start))
         else:
-            print(f"[Line {self.line_number}] ❌ Error: Unrecognized keyword '{value}' at column {start}")
             self.tokens.append(Token(value, TokenType.ERROR, self.line_number, start))
+            raise LexicalError(f"Invalid character: '{value}'", start)
 
     def tokenize(self):
         while self.index < len(self.line):
@@ -105,7 +109,7 @@ class Lexer:
                     row=self.line_number,
                     column=self.index
                 ))
-                print(f"[Line {self.line_number}] ❌ Error: Unrecognized character '{char}' at column {self.index}")
                 self.advance()
+                raise LexicalError(f"Invalid character: '{char}'", self.index)
 
         return self.tokens
