@@ -30,9 +30,10 @@ O lexer percorre a entrada caractere por caractere e gera uma lista de **tokens*
 ├── TokenType.py        # Enum de tipos de token
 ├── main.py             # Interface de execução
 ├── mefd.png            # Diagrama da máquina de estados
-├── test1.txt           # Arquivo de testes simples
-├── test2.txt           # Arquivo de testes intermediário
-├── test3.txt           # Arquivo de testes com alguns erros propositais
+├── tests           # Arquivo de testes simples
+    ├── test1.txt           # Arquivo de testes
+    ├── test2.txt           # Arquivo de testes
+    ├── test3.txt           # Arquivo de testes
 └── tokens_output.json  # Saída dos tokens (gerado automaticamente)
 ```
 ---
@@ -61,7 +62,7 @@ source .venv/bin/activate  # Linux/Mac
 
 ```bash
 # Roda o arquivo de teste 1
-python main.py --file test1.txt --save-json
+python main.py --file tests/test1.txt --save-json
 ```
 
 ### Isso irá:
